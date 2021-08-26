@@ -1,12 +1,33 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <h1> API </h1>
+    {{msg}}
   </div>
 </template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'app',
+  data() {
+    return {
+      msg: ''
+    }
+  },
+  async created() {
+    try {
+      const res = await axios.get('http://localhost:5000')
+
+      this.msg = res.data;
+    } catch(e) {
+      console.error(e)
+    }
+  }
+}
+axios.defaults.baseUrl = process.env.VUE_APP_BASE_URL
+</script>
+
 
 <style>
 #app {
