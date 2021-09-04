@@ -10,7 +10,7 @@ class StatusEnum(Enum):
 
 
 class RankEnum(Enum):
-    SETTLER = "SETTLER"
-    OFFICER = "OFFICER"
-    CONSUL = "CONSUL"
-    GOVERNOR = "GOVERNOR"
+    SETTLER = 1
+    OFFICER = 2
+    CONSUL = 3
+    GOVERNOR = 4

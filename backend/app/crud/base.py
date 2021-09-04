@@ -3,6 +3,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from fastapi.encoders import jsonable_encoder
 from sqlmodel import SQLModel
 from sqlalchemy.orm import Session
+import uuid
 
 from app.models.base import Base
 
@@ -57,7 +58,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    def remove(self, db: Session, *, id: int) -> ModelType:
+    def remove(self, db: Session, *, id: uuid.UUID) -> ModelType:
         obj = db.query(self.model).get(id)
         db.delete(obj)
         db.commit()

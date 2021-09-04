@@ -19,3 +19,4 @@ class Company(Base):
 
     members = relationship("User", back_populates="company")
     logo = relationship("File", back_populates="company")
+    banks = relationship("Bank", back_populates="company")
