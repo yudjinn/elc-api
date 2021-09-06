@@ -1,5 +1,6 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
+import os
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, PostgresDsn, validator
 from dotenv import load_dotenv
@@ -10,6 +11,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
+    FILE_STORAGE_ROUTE: str = os.path.abspath("app") + "/files/"
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days in minutes
     SERVER_NAME: str

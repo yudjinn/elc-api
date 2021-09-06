@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
 from .base import Base
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 class Company(Base):
     name = Column(String(128), nullable=False)
-    logo_id = Column(uuid.UUID(as_uuid=True), ForeignKey("file.id"))
+    logo_id = Column(UUID(as_uuid=True), ForeignKey("file.id"))
 
     members = relationship("User", back_populates="company")
     logo = relationship("File", back_populates="company")

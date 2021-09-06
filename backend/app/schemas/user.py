@@ -4,6 +4,8 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 import uuid
 
+from app.utils import RankEnum
+
 # Shared Properties
 class UserBase(SQLModel):
     username: str
@@ -12,7 +14,7 @@ class UserBase(SQLModel):
     is_active: Optional[bool] = Field(default=True)
     is_superuser: Optional[bool] = Field(default=False)
     company_id: Optional[uuid.UUID] = Field(default=None)
-    rank: str
+    rank: Optional[RankEnum] = Field(default=None)
 
 
 # Properties to recieve via API on creation

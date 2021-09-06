@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import Column, Float, ForeignKey, Enum
 from sqlalchemy.orm import relationship
-import uuid
+from sqlalchemy.dialects.postgresql import UUID
 
 from .base import Base
 from app.utils import StatusEnum
@@ -16,9 +16,9 @@ class Transaction(Base):
     amount = Column(Float, nullable=False)
     status = Column("status", Enum(StatusEnum))
 
-    bank_id = Column(uuid.UUID(as_uuid=True), ForeignKey("bank.id"))
-    creator_id = Column(uuid.UUID(as_uuid=True), ForeignKey("user.id"))
-    approver_id = Column(uuid.UUID(as_uuid=True), ForeignKey("user.id"))
+    bank_id = Column(UUID(as_uuid=True), ForeignKey("bank.id"))
+    creator_id = Column(UUID(as_uuid=True), ForeignKey("user.id"))
+    approver_id = Column(UUID(as_uuid=True), ForeignKey("user.id"))
 
     bank = relationship("Bank", back_populates="transactions")
     creator = relationship(

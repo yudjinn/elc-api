@@ -8,10 +8,12 @@ from app.crud.base import CRUDBase
 from app.models.bank import Bank
 from app.schemas.bank import BankCreate, BankUpdate
 from app.models.company import Company
+from app.models.user import User
 
 
 class CRUDBank(CRUDBase[Bank, BankCreate, BankUpdate]):
-    def get_all_by_company(self, db: Session, *, company: Company) -> List[Bank]:
+    def get_all_by_user(self, db: Session, *, user: User) -> List[Bank]:
+        company = db.query(Company).filter(Company.id == user.company_id).first()
         return company.banks
 
     def create(self, db: Session, *, obj_in: BankCreate, company_id: uuid.UUID) -> Bank:
@@ -26,3 +28,6 @@ class CRUDBank(CRUDBase[Bank, BankCreate, BankUpdate]):
         else:
             update_data = obj_in.dict(excluse_unset=True)
         return super().update(db, db_obj=db_obj, obj_in=update_data)
+
+
+bank = CRUDBank(Bank)

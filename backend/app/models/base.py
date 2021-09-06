@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from sqlalchemy import Column, DateTime
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.decl_api import as_declarative, declared_attr
 import uuid
 from datetime import datetime
@@ -13,7 +14,7 @@ class Base:
         return cls.__name__.lower()
 
     id: Optional[uuid.UUID] = Column(
-        uuid.UUID(as_uuid=True), default=uuid.uuid1, primary_key=True
+        UUID(as_uuid=True), default=uuid.uuid1, primary_key=True
     )
 
     updated_dt: Optional[datetime] = Column(DateTime, default=datetime.utcnow)

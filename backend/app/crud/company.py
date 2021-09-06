@@ -30,3 +30,6 @@ class CRUDCompany(CRUDBase[Company, CompanyCreate, CompanyUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     # Method to return logo
+
+
+company = CRUDCompany(Company)

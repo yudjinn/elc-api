@@ -67,3 +67,6 @@ class CRUDTransaction(CRUDBase[Transaction, TransactionCreate, TransactionUpdate
             # Error, already approved cannot remove
             pass
         return super().remove(db, id=id)
+
+
+transaction = CRUDTransaction(Transaction)
