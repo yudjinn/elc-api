@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
-class StatusEnum(Enum):
+class StatusEnum(str, Enum):
     ACTIVE = "ACTIVE"
     CLOSED = "CLOSED"
     PENDING = "PENDING"
@@ -9,7 +9,7 @@ class StatusEnum(Enum):
     APPROVED = "APPROVED"
 
 
-class RankEnum(Enum):
+class RankEnum(IntEnum):
     SETTLER = 1
     OFFICER = 2
     CONSUL = 3

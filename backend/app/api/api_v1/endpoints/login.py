@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -9,7 +9,6 @@ from app import crud, models, schemas
 from app.api import deps
 from app.core import security
 from app.core.config import settings
-from app.core.security import get_password_hash
 
 router = APIRouter()
 
@@ -43,3 +42,20 @@ def test_token(current_user: models.User = Depends(deps.get_current_user)) -> An
     Test access token
     """
     return current_user
+
+
+@router.get("/login/refresh-token", response_model=schemas.Token)
+def refresh_access_token(
+    current_user: models.User = Depends(deps.get_current_user),
+) -> Any:
+    if not current_user:
+        raise HTTPException(status_code=400, detail="No valid token")
+    elif not crud.user.is_active(current_user):
+        raise HTTPException(status_code=400, detail="Inactive user")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return {
+        "access_token": security.create_access_token(
+            current_user.id, expires_delta=access_token_expires
+        ),
+        "token_type": "bearer",
+    }

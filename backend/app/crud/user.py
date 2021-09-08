@@ -7,6 +7,7 @@ from app.crud.base import CRUDBase
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
 from app.schemas.company import Company
+from app.utils import RankEnum
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -37,6 +38,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
+
+    def update_rank(self, db: Session, *, db_obj: User, rank: RankEnum) -> User:
+        return super().update(db, db_obj=db_obj, obj_in={"rank": rank})
 
     def authenticate(
         self, db: Session, *, username: str, password: str

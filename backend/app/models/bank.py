@@ -18,7 +18,9 @@ class Bank(Base):
     company_id = Column(UUID(as_uuid=True), ForeignKey("company.id"))
 
     company = relationship("Company", back_populates="banks")
-    transactions = relationship("Transaction", back_populates="bank")
+    transactions = relationship(
+        "Transaction", back_populates="bank", cascade="all, delete"
+    )
 
     balance = column_property(
         select(func.sum(Transaction.amount))

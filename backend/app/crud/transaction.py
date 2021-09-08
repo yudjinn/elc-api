@@ -29,6 +29,24 @@ class CRUDTransaction(CRUDBase[Transaction, TransactionCreate, TransactionUpdate
             .all()
         )
 
+    def get_all_by_bank_scoped(
+        self, db: Session, *, bank: Bank, scope: StatusEnum
+    ) -> List[Transaction]:
+        return db.query(Transaction).where(bank_id=bank.id).where(status=scope).all()
+
+    def get_multi_by_company_scoped(
+        self, db: Session, *, company: Company, scope: StatusEnum, skip: int, limit: int
+    ) -> List[Transaction]:
+        return (
+            db.query(Transaction)
+            .join(Transaction.bank)
+            .where(company_id=company.id)
+            .where(status=scope)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
     def create(
         self, db: Session, *, obj_in: TransactionCreate, creator: User
     ) -> Transaction:

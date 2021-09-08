@@ -12,8 +12,8 @@ from app.models.user import User
 
 
 class CRUDBank(CRUDBase[Bank, BankCreate, BankUpdate]):
-    def get_all_by_user(self, db: Session, *, user: User) -> List[Bank]:
-        company = db.query(Company).filter(Company.id == user.company_id).first()
+    def get_all_by_company(self, db: Session, *, company: Company) -> List[Bank]:
+        company = db.query(Company).filter(Company.id == company.id).first()
         return company.banks
 
     def create(self, db: Session, *, obj_in: BankCreate, company_id: uuid.UUID) -> Bank:

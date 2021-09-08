@@ -19,5 +19,5 @@ class Company(Base):
     logo_id = Column(UUID(as_uuid=True), ForeignKey("file.id"))
 
     members = relationship("User", back_populates="company")
-    logo = relationship("File", back_populates="company")
-    banks = relationship("Bank", back_populates="company")
+    logo = relationship("File", back_populates="company", cascade="all, delete")
+    banks = relationship("Bank", back_populates="company", cascade="all, delete")

@@ -1,22 +1,17 @@
-from datetime import timedelta
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import uuid
 
 from app import crud, models, schemas
 from app.api import deps
-from app.core import security
-from app.core.config import settings
-from app.core.security import get_password_hash
 from app.utils import RankEnum
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[models.Bank])
+@router.get("/", response_model=List[schemas.Bank])
 def read_all_by_user(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -24,11 +19,16 @@ def read_all_by_user(
     """
     Retrieve all banks attached to company by user
     """
-    if banks := crud.bank.get_all_by_company(db, user=current_user) is None:
-        # No Company Error
+    company = crud.company.get(db=db, id=current_user.company_id)
+    if not company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User has no company"
+        )
+    banks = crud.bank.get_all_by_company(db, company=company)
+    if not banks:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User is not part of a company.",
+            detail="User is not part of a valid company.",
         )
     return banks
 
@@ -86,7 +86,7 @@ def create_bank(
 @router.put("/{id}", response_model=schemas.Bank)
 def update_bank(
     *,
-    db: Session = Depends(deps.get_bd),
+    db: Session = Depends(deps.get_db),
     id: uuid.UUID,
     bank_in: schemas.BankUpdate,
     current_user: models.User = Depends(deps.get_current_user),
@@ -112,12 +112,12 @@ def update_bank(
 @router.delete("/{id}", response_model=schemas.Bank)
 def delete_bank(
     *,
-    db: Session = Depends(deps.get_bd),
+    db: Session = Depends(deps.get_db),
     id: uuid.UUID,
     current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Delete an item.
+    Delete bank
     """
     if current_user.rank < RankEnum.GOVERNOR:
         raise HTTPException(

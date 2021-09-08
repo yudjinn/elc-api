@@ -8,8 +8,8 @@ from app.utils import RankEnum
 
 # Shared Properties
 class UserBase(SQLModel):
-    username: str
-    in_game_name: str
+    username: Optional[str] = Field(default=None)
+    in_game_name: Optional[str] = Field(default=None)
     discord_name: Optional[str] = Field(default=None)
     is_active: Optional[bool] = Field(default=True)
     is_superuser: Optional[bool] = Field(default=False)

@@ -6,6 +6,7 @@ from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
 from app.models.company import Company
 from app.schemas.company import CompanyCreate, CompanyUpdate
+from app.models.user import User
 
 
 class CRUDCompany(CRUDBase[Company, CompanyCreate, CompanyUpdate]):
@@ -30,6 +31,13 @@ class CRUDCompany(CRUDBase[Company, CompanyCreate, CompanyUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     # Method to return logo
+
+    def add_user(self, db: Session, *, db_obj: Company, user: User):
+        db_obj.members.append(user)
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
 
 company = CRUDCompany(Company)
