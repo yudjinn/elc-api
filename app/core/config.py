@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = False
 
+    # Discord Usage
+    DISCORD_CLIENT_ID: str
+    DISCORD_SECRET_KEY : str
+    DISCORD_REDIRECT: AnyHttpUrl
+
     class Config:
         case_sensitive = True
 

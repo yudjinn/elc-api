@@ -1,5 +1,5 @@
 # Pull base image
-FROM python:3.7
+FROM python:3.9
 
 # Set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,7 +9,7 @@ WORKDIR /app/
 
 # Install dependencies
 COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 COPY . /app/
 

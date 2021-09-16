@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from starlette_discord import DiscordOAuthClient
 
 from app import crud, models, schemas
 from app.api import deps
@@ -11,6 +12,18 @@ from app.core import security
 from app.core.config import settings
 
 router = APIRouter()
+
+
+discord_client = DiscordOAuthClient(settings.DISCORD_CLIENT_ID, settings.DISCORD_SECRET_KEY, settings.DISCORD_REDIRECT)
+
+@router.get('/login')
+async def start_login():
+    return discord_client.redirect()
+
+@router.get('/callback')
+async def finish_login(code:str):
+    user = await discord_client.login(code)
+    return user
 
 
 @router.post("/login/access-token", response_model=schemas.Token)
