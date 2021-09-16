@@ -5,12 +5,12 @@ FROM python:3.7
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /backend/
+WORKDIR /app/
 
 # Install dependencies
-COPY requirements.txt /backend/
+COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
-COPY . /backend/
+COPY . /app/
 
 EXPOSE 8000
