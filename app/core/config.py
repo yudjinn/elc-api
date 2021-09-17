@@ -56,6 +56,8 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_ID: str
     DISCORD_SECRET_KEY : str
     DISCORD_REDIRECT: AnyHttpUrl
+    DISCORD_LINK: AnyHttpUrl
+    DISCORD_API_ENDPOINT: AnyHttpUrl = 'https://discord.com/api/v8'
 
     class Config:
         case_sensitive = True

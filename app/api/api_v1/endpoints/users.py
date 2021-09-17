@@ -6,6 +6,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
+from starlette_discord import DiscordOAuthClient
 import uuid
 
 from app import crud, models, schemas
@@ -121,4 +122,21 @@ def update_user(
             detail="The user with this username does not exist in the system",
         )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
+    return user
+
+
+# Link Discord Account
+discord_client = DiscordOAuthClient(settings.DISCORD_CLIENT_ID, settings.DISCORD_SECRET_KEY, settings.DISCORD_REDIRECT)
+
+# Discord login
+@router.get('/link-discord',response_model=schemas.User)
+async def link_discord(*, db: Session=Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),):
+    return discord_client.redirect()
+
+@router.get('/link-discord-callback', response_model=schemas.User)
+async def finish_link(code:str, db: Session=Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),):
+    discord_user = await discord_client.login(code)
+    user = crud.user.update(db, db_obj=current_user, obj_in={"discord_id": discord_user.id, "discord_name": discord_user.username})
     return user
