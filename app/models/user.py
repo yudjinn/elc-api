@@ -18,6 +18,7 @@ class User(Base):
     username = Column(String(64), nullable=False)
     in_game_name = Column(String(64), nullable=False)
     discord_name = Column(String(64))
+    discord_id = Column(String(128))
     is_active = Column(Boolean(), default=True)
     is_superuser= Column(Boolean(), default=False)
     company_id = Column(UUID(as_uuid=True), ForeignKey("company.id"))

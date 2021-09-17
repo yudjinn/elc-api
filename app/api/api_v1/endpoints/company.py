@@ -51,7 +51,7 @@ def create_company(
             detail="An error occurred.",
         )
     crud.user.update_rank(db=db, db_obj=current_user, rank=RankEnum.GOVERNOR)
-    company = crud.company.add_user(current_user)
+    company = crud.company.add_user(db=db, db_obj = company, user=current_user)
     return company
 
 
