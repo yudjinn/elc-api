@@ -1,5 +1,3 @@
-# response model
-
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException
