@@ -101,7 +101,7 @@ def update_bank(
         )
     if not bank:
         raise HTTPException(status_code=404, detail="Bank not found")
-    if  not current_user.rank or current_user.rank < RankEnum.CONSUL:
+    if not current_user.rank or current_user.rank < RankEnum.CONSUL:
         raise HTTPException(
             status_code=400, detail="User must be at least CONSUL to edit banks."
         )
@@ -119,7 +119,7 @@ def delete_bank(
     """
     Delete bank
     """
-    if  not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be GOVERNOR to delete banks",

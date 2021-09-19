@@ -20,7 +20,7 @@ class User(Base):
     discord_name = Column(String(64))
     discord_id = Column(String(128))
     is_active = Column(Boolean(), default=True)
-    is_superuser= Column(Boolean(), default=False)
+    is_superuser = Column(Boolean(), default=False)
     company_id = Column(UUID(as_uuid=True), ForeignKey("company.id"))
     rank = Column("status", Enum(RankEnum))
     hashed_password = Column(String(256))

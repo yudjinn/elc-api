@@ -124,17 +124,30 @@ def update_user(
 
 
 # Link Discord Account
-discord_client = DiscordOAuthClient(settings.DISCORD_CLIENT_ID, settings.DISCORD_SECRET_KEY, settings.DISCORD_REDIRECT)
+discord_client = DiscordOAuthClient(
+    settings.DISCORD_CLIENT_ID, settings.DISCORD_SECRET_KEY, settings.DISCORD_REDIRECT
+)
 
 # Discord login
-@router.get('/link-discord',response_model=schemas.User)
-async def link_discord(*, db: Session=Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),):
+@router.get("/link-discord", response_model=schemas.User)
+async def link_discord(
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
     return discord_client.redirect()
 
-@router.get('/link-discord-callback', response_model=schemas.User)
-async def finish_link(code:str, db: Session=Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),):
+
+@router.get("/link-discord-callback", response_model=schemas.User)
+async def finish_link(
+    code: str,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
     discord_user = await discord_client.login(code)
-    user = crud.user.update(db, db_obj=current_user, obj_in={"discord_id": discord_user.id, "discord_name": discord_user.username})
+    user = crud.user.update(
+        db,
+        db_obj=current_user,
+        obj_in={"discord_id": discord_user.id, "discord_name": discord_user.username},
+    )
     return user
