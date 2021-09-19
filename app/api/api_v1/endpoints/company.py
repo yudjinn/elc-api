@@ -51,7 +51,7 @@ def create_company(
             detail="An error occurred.",
         )
     crud.user.update_rank(db=db, db_obj=current_user, rank=RankEnum.GOVERNOR)
-    company = crud.company.add_user(db=db, db_obj = company, user=current_user)
+    company = crud.company.add_user(db=db, db_obj=company, user=current_user)
     return company
 
 
@@ -76,7 +76,7 @@ def update_company(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have permissions for this company.",
         )
-    if  not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have rank of GOVERNOR.",
@@ -94,7 +94,7 @@ def delete_company(
     """
     Delete company.
     """
-    if  not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be GOVERNOR to delete company.",

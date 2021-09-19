@@ -34,7 +34,7 @@ class BankInDBBase(BankBase):
 
 # Additional Properties to return via API
 class Bank(BankInDBBase):
-    balance : float
+    balance: float
 
 
 # Additional properties stored in db

@@ -54,10 +54,10 @@ class Settings(BaseSettings):
 
     # Discord Usage
     DISCORD_CLIENT_ID: str
-    DISCORD_SECRET_KEY : str
+    DISCORD_SECRET_KEY: str
     DISCORD_REDIRECT: AnyHttpUrl
     DISCORD_LINK: AnyHttpUrl
-    DISCORD_API_ENDPOINT: AnyHttpUrl = 'https://discord.com/api/v8'
+    DISCORD_API_ENDPOINT: AnyHttpUrl = "https://discord.com/api/v8"
 
     class Config:
         case_sensitive = True
