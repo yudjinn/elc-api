@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -76,7 +76,7 @@ def update_company(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have permissions for this company.",
         )
-    if not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank.value < RankEnum.GOVERNOR.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have rank of GOVERNOR.",
@@ -94,7 +94,7 @@ def delete_company(
     """
     Delete company.
     """
-    if not current_user.rank or current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank.value < RankEnum.GOVERNOR.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be GOVERNOR to delete company.",
@@ -112,7 +112,7 @@ def delete_company(
     return company
 
 
-@router.post("/{company_id}/{user_id}/{rank}")
+@router.post("/{company_id}/{user_id}/{rank}", response_model=List[schemas.User])
 def add_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -130,7 +130,7 @@ def add_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Company or user not found."
         )
-    if not current_user.rank or current_user.rank < RankEnum.CONSUL.value:
+    if not current_user.rank or current_user.rank.value < RankEnum.CONSUL.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be CONSUL or higher to add members",
