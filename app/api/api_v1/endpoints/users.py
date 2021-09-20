@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
@@ -10,6 +10,7 @@ import uuid
 from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
+from app.utils import RankEnum
 
 router = APIRouter()
 
@@ -119,7 +120,38 @@ def update_user(
             status_code=404,
             detail="The user with this username does not exist in the system",
         )
+    if "rank" in user_in:
+        del user_in.rank
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
+    return user
+
+
+@router.put("/{user_id}/{rank}", response_model=schemas.User)
+def update_rank(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: uuid.UUID,
+    rank: RankEnum,
+    current_user: models.User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    if rank.value == RankEnum.GOVERNOR.value:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot promote to governor, try transfer of ownership.")
+    user = crud.user.get(db=db, id=user_id)
+    if not user or not user.company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Company or user not found."
+        )
+    if not current_user.rank or current_user.rank.value < RankEnum.CONSUL.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must be CONSUL or higher to promote members",
+        )
+    if current_user.company_id != user.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have access to this company.",
+        )
+    user = crud.user.update_rank(db=db, db_obj=user, rank=rank)
     return user
 
 
