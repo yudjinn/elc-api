@@ -125,7 +125,7 @@ def get_transaction(
     return transaction
 
 
-@router.post("/{bank_id}")
+@router.post("/{bank_id}", response_model=schemas.Transaction)
 def create_transaction(
     *,
     db: Session = Depends(deps.get_db),
@@ -150,3 +150,101 @@ def create_transaction(
         db=db, obj_in=transaction_in, creator=current_user
     )
     return transaction
+
+
+@router.put("/{id}", response_model=schemas.Transaction)
+def update_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: uuid.UUID,
+    transaction_in: schemas.TransactionUpdate,
+    current_user: models.User = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Update Transaction
+    """
+    transaction = crud.transaction.get(db=db, id=id)
+    if not transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction does not exist."
+        )
+    bank = crud.bank.get(db=db, id=transaction.bank_id)
+    if current_user.company_id != bank.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have access to that company's transactions.",
+        )
+    if (
+        current_user.rank.value < RankEnum.CONSUL.value
+        or current_user.id != transaction.creator_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have permissions for this transaction.",
+        )
+    # dont allow user to change status, only approve endpoints do that
+    transaction_in.status = transaction.status
+    transaction = crud.transaction.update(
+        db=db, db_obj=transaction, obj_in=transaction_in
+    )
+    return transaction
+
+
+@router.put("/{id}/approve", response_model=schemas.Transaction)
+def approve_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: uuid.UUID,
+    current_user: models.User = Depends(deps.get_current_user),
+) -> Any:
+    transaction = crud.transaction.get(db=db, id=id)
+    if not transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction does not exist."
+        )
+    if current_user.company_id != transaction.bank.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have access to that company's transactions.",
+        )
+    if current_user.rank.value < RankEnum.CONSUL.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User must be CONSUL or greater to approve.",
+        )
+    transaction = crud.transaction.approve(
+        db=db, db_obj=transaction, approver=current_user
+    )
+    return transaction
+
+
+@router.delete("/{id}", response_model=schemas.Transaction)
+def delete_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: uuid.UUID,
+    current_user: models.User = Depends(deps.get_current_user),
+) -> Any:
+    transaction = crud.transaction.get(db=db, id=id)
+    if not transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Transaction does not exist."
+        )
+    if transaction.status is StatusEnum.APPROVED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Transaction is approved, cannot be deleted.",
+        )
+    if current_user.company_id != transaction.bank.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not have access to that company's transactions.",
+        )
+    if (
+        current_user.rank.value < RankEnum.CONSUL.value
+        or transaction.creator_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User must be CONSUL or greater to approve.",
+        )

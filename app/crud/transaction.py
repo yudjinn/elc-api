@@ -70,21 +70,13 @@ class CRUDTransaction(CRUDBase[Transaction, TransactionCreate, TransactionUpdate
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def approve(
-        self, db: Session, *, db_obj: Transaction, obj_in: Transaction, approver: User
+        self, db: Session, *, db_obj: Transaction, approver: User
     ) -> Transaction:
-        if approver.rank.value < RankEnum.CONSUL.value:
-            # Error, not enough rank
-            pass
-        update_data = obj_in.dict()
-        update_data["status"] = StatusEnum.APPROVED
-        return super().update(db, db_obj=db_obj, obj_in=update_data)
-
-    def remove(self, db: Session, *, id: uuid.UUID) -> Transaction:
-        db_obj = db.query(Transaction).get(id)
-        if db_obj.status is StatusEnum.APPROVED:
-            # Error, already approved cannot remove
-            pass
-        return super().remove(db, id=id)
+        return super().update(
+            db,
+            db_obj=db_obj,
+            obj_in={"status": StatusEnum.APPROVED, "approver_id": approver.id},
+        )
 
 
 transaction = CRUDTransaction(Transaction)
