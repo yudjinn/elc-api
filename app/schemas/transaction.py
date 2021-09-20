@@ -4,20 +4,23 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 import uuid
 
+from app.utils import StatusEnum
+
 # Shared Properties
 class TransactionBase(SQLModel):
     amount: float
-    status: str
+    status: StatusEnum
 
 
 # Properties to recieve via API on creation
 class TransactionCreate(TransactionBase):
-    pass
+    status: Optional[StatusEnum] = Field(default=StatusEnum.PENDING)
 
 
 # Properties to recieve via API on update
 class TransactionUpdate(TransactionBase):
-    pass
+    amount: Optional[float] = Field(default=None)
+    status: Optional[StatusEnum] = Field(default=StatusEnum.PENDING)
 
 
 # Properties shared by models stored in db

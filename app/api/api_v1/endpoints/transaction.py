@@ -123,3 +123,30 @@ def get_transaction(
             detail="User does not have access to that company's transactions.",
         )
     return transaction
+
+
+@router.post("/{bank_id}")
+def create_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    bank_id: uuid.UUID,
+    transaction_in: schemas.TransactionCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Create new transaction for bank
+    """
+    bank = crud.bank.get(db=db, id=bank_id)
+    if not bank:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bank does not exist"
+        )
+    if current_user.company_id != bank.company_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User does not belong to that bank's company.",
+        )
+    transaction = crud.transaction.create(
+        db=db, obj_in=transaction_in, creator=current_user
+    )
+    return transaction

@@ -72,7 +72,7 @@ class CRUDTransaction(CRUDBase[Transaction, TransactionCreate, TransactionUpdate
     def approve(
         self, db: Session, *, db_obj: Transaction, obj_in: Transaction, approver: User
     ) -> Transaction:
-        if approver.rank < RankEnum.CONSUL:
+        if approver.rank.value < RankEnum.CONSUL.value:
             # Error, not enough rank
             pass
         update_data = obj_in.dict()
