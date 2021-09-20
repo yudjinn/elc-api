@@ -10,6 +10,7 @@ from app.utils import StatusEnum
 class BankBase(SQLModel):
     name: str
     status: StatusEnum
+    company_id: uuid.UUID
 
 
 # Properties to recieve via API on creation
