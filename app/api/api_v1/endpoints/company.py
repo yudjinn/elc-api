@@ -141,6 +141,6 @@ def add_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have access to this company.",
         )
-    company = crud.company.add_user(db=db, db_obj=company, user=current_user)
-    user = crud.user.update(db=db, db_obj=user, obj_in={"rank": rank})
+    company = crud.company.add_user(db=db, db_obj=company, user=user)
+    user = crud.user.update_rank(db=db, db_obj=user, rank=rank)
     return company.members
