@@ -71,7 +71,7 @@ def update_company(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Company does not exist."
         )
-    if current_user.company_id and current_user.company_id != id:
+    if current_user.company_id != id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have permissions for this company.",
@@ -82,6 +82,7 @@ def update_company(
             detail="User does not have rank of GOVERNOR.",
         )
     company = crud.company.update(db=db, db_obj=company, obj_in=company_in)
+    return company
 
 
 @router.delete("/{id}", response_model=schemas.Company)
@@ -140,6 +141,6 @@ def add_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have access to this company.",
         )
-    company = crud.company.add_user(current_user)
+    company = crud.company.add_user(db_obj=company, user=current_user)
     user = crud.user.update(db=db, db_obj=user, obj_in={"rank": rank})
     return company.members
