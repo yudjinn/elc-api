@@ -13,6 +13,6 @@ RUN python3 -m pip install -r requirements.txt
 
 COPY ./src /src/
 
-RUN python3 -m alembic upgrade head
+RUN alembic upgrade head
 
 EXPOSE 8000
