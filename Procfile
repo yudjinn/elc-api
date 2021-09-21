@@ -1,2 +1,2 @@
-release: alembic upgrade head
-web: gunicorn -w 1 -k uvicorn.workers.UvicornWorker app.main:app --app-dir src
+release: cd src && alembic upgrade head
+web: gunicorn -w 1 -k uvicorn.workers.UvicornWorker app.main:app
