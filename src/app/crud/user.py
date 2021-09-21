@@ -43,7 +43,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def update_rank(self, db: Session, *, db_obj: User, rank: RankEnum) -> User:
-        return super().update(db, db_obj=db_obj, obj_in={"rank": rank})
+        user = super().get(db=db, id=db_obj.id)
+        user.rank = rank
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
 
     def authenticate(
         self, db: Session, *, username: str, password: str
