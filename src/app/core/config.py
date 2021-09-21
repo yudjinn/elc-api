@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = False
 
+    # Discord Usage
+    DISCORD_CLIENT_ID: str
+    DISCORD_SECRET_KEY: str
+    DISCORD_REDIRECT: AnyHttpUrl
+    DISCORD_LINK: AnyHttpUrl
+    DISCORD_API_ENDPOINT: AnyHttpUrl = "https://discord.com/api/v8"
+
     class Config:
         case_sensitive = True
 

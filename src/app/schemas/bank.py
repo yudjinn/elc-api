@@ -4,20 +4,25 @@ from sqlmodel import SQLModel, Field
 import uuid
 from datetime import datetime
 
+from app.utils import StatusEnum
+
 # Shared Properties
 class BankBase(SQLModel):
     name: str
-    status: str
+    status: StatusEnum
+    company_id: uuid.UUID
 
 
 # Properties to recieve via API on creation
 class BankCreate(BankBase):
-    pass
+    name: Optional[str] = Field(default=None)
+    status: Optional[StatusEnum] = Field(default=StatusEnum.ACTIVE)
 
 
 # Properties to recieve via API on update
 class BankUpdate(BankBase):
-    pass
+    name: Optional[str] = Field(default=None)
+    status: Optional[StatusEnum] = Field(default=StatusEnum.ACTIVE)
 
 
 # Properties shared by models stored in db
@@ -34,7 +39,7 @@ class BankInDBBase(BankBase):
 
 # Additional Properties to return via API
 class Bank(BankInDBBase):
-    balance : float
+    balance: float
 
 
 # Additional properties stored in db

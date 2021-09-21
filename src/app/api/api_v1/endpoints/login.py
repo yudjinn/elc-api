@@ -1,9 +1,11 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from starlette_discord import DiscordOAuthClient
+from starlette.responses import RedirectResponse
 
 from app import crud, models, schemas
 from app.api import deps
@@ -11,6 +13,35 @@ from app.core import security
 from app.core.config import settings
 
 router = APIRouter()
+
+
+discord_client = DiscordOAuthClient(
+    settings.DISCORD_CLIENT_ID, settings.DISCORD_SECRET_KEY, settings.DISCORD_REDIRECT
+)
+
+# Discord login
+@router.get("/discord-login")
+async def start_login():
+    return discord_client.redirect()
+
+
+@router.get("/callback", response_model=schemas.Token)
+async def finish_login(code: str):
+    discord_user = await discord_client.login(code)
+    user = crud.user.get_by_discord_id(discord_user.id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No matching user."
+        )
+    if not crud.user.is_active(user):
+        raise HTTPException(status_code=400, detail="Inactive user")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return {
+        "access_token": security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        ),
+        "token_type": "bearer",
+    }
 
 
 @router.post("/login/access-token", response_model=schemas.Token)

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -51,7 +51,7 @@ def create_company(
             detail="An error occurred.",
         )
     crud.user.update_rank(db=db, db_obj=current_user, rank=RankEnum.GOVERNOR)
-    company = crud.company.add_user(current_user)
+    company = crud.company.add_user(db=db, db_obj=company, user=current_user)
     return company
 
 
@@ -71,17 +71,18 @@ def update_company(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Company does not exist."
         )
-    if current_user.company_id and current_user.company_id != id:
+    if current_user.company_id != id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have permissions for this company.",
         )
-    if current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank.value < RankEnum.GOVERNOR.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have rank of GOVERNOR.",
         )
     company = crud.company.update(db=db, db_obj=company, obj_in=company_in)
+    return company
 
 
 @router.delete("/{id}", response_model=schemas.Company)
@@ -94,7 +95,7 @@ def delete_company(
     """
     Delete company.
     """
-    if current_user.rank < RankEnum.GOVERNOR:
+    if not current_user.rank or current_user.rank.value < RankEnum.GOVERNOR.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be GOVERNOR to delete company.",
@@ -112,7 +113,7 @@ def delete_company(
     return company
 
 
-@router.post("/{company_id}/{user_id}/{rank}")
+@router.post("/{company_id}/{user_id}/{rank}", response_model=List[schemas.User])
 def add_user(
     *,
     db: Session = Depends(deps.get_db),
@@ -130,7 +131,7 @@ def add_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Company or user not found."
         )
-    if current_user.rank < RankEnum.CONSUL.value:
+    if not current_user.rank or current_user.rank.value < RankEnum.CONSUL.value:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Must be CONSUL or higher to add members",
@@ -140,6 +141,6 @@ def add_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User does not have access to this company.",
         )
-    company = crud.company.add_user(current_user)
-    user = crud.user.update(db=db, db_obj=user, obj_in={"rank": rank})
+    company = crud.company.add_user(db=db, db_obj=company, user=user)
+    user = crud.user.update_rank(db=db, db_obj=user, rank=rank)
     return company.members

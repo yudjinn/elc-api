@@ -11,6 +11,7 @@ class UserBase(SQLModel):
     username: Optional[str] = Field(default=None)
     in_game_name: Optional[str] = Field(default=None)
     discord_name: Optional[str] = Field(default=None)
+    discord_id: Optional[str] = Field(default=None)
     is_active: Optional[bool] = Field(default=True)
     is_superuser: Optional[bool] = Field(default=False)
     company_id: Optional[uuid.UUID] = Field(default=None)

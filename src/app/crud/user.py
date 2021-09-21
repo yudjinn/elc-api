@@ -14,6 +14,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_username(self, db: Session, *, username: str) -> Optional[User]:
         return db.query(User).filter(User.username == username).first()
 
+    def get_by_discord_id(self, db: Session, *, discord_id: str) -> Optional[User]:
+        return db.query(User).filter(User.discord_id == discord_id).first()
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             username=obj_in.username,
@@ -33,14 +36,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        if update_data["password"]:
+        if "password" in update_data and update_data["password"]:
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def update_rank(self, db: Session, *, db_obj: User, rank: RankEnum) -> User:
-        return super().update(db, db_obj=db_obj, obj_in={"rank": rank})
+        user = super().get(db=db, id=db_obj.id)
+        user.rank = rank
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
 
     def authenticate(
         self, db: Session, *, username: str, password: str

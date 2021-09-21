@@ -9,7 +9,6 @@ from app.utils import RankEnum
 
 
 def init_db(db: Session) -> None:
-    Base.metadata.create_all(bind=engine)  # needs engine first
 
     # Init first user if in dev mode
     user = crud.user.get_by_username(db, username=settings.FIRST_SUPERUSER)

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Column, String, ForeignKey, select, func, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import column_property, relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .base import Base
 from app.utils import StatusEnum
@@ -22,8 +23,6 @@ class Bank(Base):
         "Transaction", back_populates="bank", cascade="all, delete"
     )
 
-    balance = column_property(
-        select(func.sum(Transaction.amount))
-        .where(Transaction.bank_id == id and Transaction.status == StatusEnum.APPROVED)
-        .scalar_subquery()
-    )
+    @hybrid_property
+    def balance(self):
+        return sum(t.amount for t in self.transactions)
