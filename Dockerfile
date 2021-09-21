@@ -5,12 +5,14 @@ FROM python:3.9
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /app/
+WORKDIR /src/
 
 # Install dependencies
-COPY requirements.txt /app/
+COPY requirements.txt /src/
 RUN python3 -m pip install -r requirements.txt
 
-COPY . /app/
+COPY ./src /src/
+
+RUN python3 -m alembic upgrade head
 
 EXPOSE 8000
