@@ -21,8 +21,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj = User(
             username=obj_in.username,
             in_game_name=obj_in.in_game_name,
+            discord_name=obj_in.discord_name,
             hashed_password=get_password_hash(obj_in.password),
             is_superuser=obj_in.is_superuser,
+            company_id=obj_in.company_id,
+            rank=obj_in.rank,
         )
         db.add(db_obj)
         db.commit()
