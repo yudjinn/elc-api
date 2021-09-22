@@ -135,7 +135,10 @@ def update_rank(
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     if rank.value == RankEnum.GOVERNOR.value:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot promote to governor, try transfer of ownership.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot promote to governor, try transfer of ownership.",
+        )
     user = crud.user.get(db=db, id=user_id)
     if not user or not user.company:
         raise HTTPException(
